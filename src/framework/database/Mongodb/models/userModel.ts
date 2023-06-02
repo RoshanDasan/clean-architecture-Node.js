@@ -1,5 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 
+// schema for users
 const userSchema = new Schema(
   {
     name: {
@@ -15,16 +16,12 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: true,
-      // unique: true,
     },
     number: {
         type: Number,
-        required: true,
-        // unique: true,
     },
     password: {
       type: String,
-      required: true,
       minlength:3
     },
     dp: {
@@ -37,24 +34,9 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    followers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    following: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    posts: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post",
-      },
-    ],
+    followers: [],
+    following: []
+
   },
   { timestamps: true }
 );

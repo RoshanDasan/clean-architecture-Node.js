@@ -13,7 +13,7 @@ const authServices = () => {
         password = await bcryptjs_1.default.hash(password, salt);
         return password;
     };
-    const compatePassword = (password, hasedPassword) => {
+    const comparePassword = (password, hasedPassword) => {
         return bcryptjs_1.default.compare(password, hasedPassword);
     };
     const generateToken = (payload) => {
@@ -34,7 +34,7 @@ const authServices = () => {
     };
     return {
         encryptPassword,
-        compatePassword,
+        comparePassword,
         generateToken,
         verifyToken
     };

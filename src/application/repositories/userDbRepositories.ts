@@ -6,27 +6,59 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         name: string;
         userName: string;
         email: string;
-        number: number;
-        password: string;
+        number?: number;
+        password?: string;
     }) => {
+        
         return await repository.addUser(user);
     };
 
     const getUserByEmail = async (email: string) => {
-        await repository.getUserByEmail(email);
+        return await repository.getUserByEmail(email);
     };
+    
     const getUserByUserName = async (userName: string) => {
-        await repository.getUserByUserName(userName);
+        
+       return await repository.getUserByUserName(userName);
     };
+
     const getUserById = async (id: string) => {
-        await repository.getUserById(id);
+        return await repository.getUserById(id);
+    };
+
+    const getFollowers = async (id: string) => {
+        return await repository.getFollowers(id);
+    };
+
+    const getFollowings = async (id: string) => {
+        return await repository.getFollowings(id);
+    };
+
+    const findFriend = async (id: string, friendId: string) => {
+        return await repository.findFriend(id, friendId);
     }
+
+    const unfollowFriend = async (id: string, friendId: string) => {
+        return await repository.unfollowFriend(id, friendId)
+    }
+
+    const followFriend = async (id: string, friendId: string) => {
+        return await repository.followFriend(id, friendId)
+    }
+
+
 
     return {
         addUser,
         getUserByEmail,
         getUserByUserName,
-        getUserById
+        getUserById,
+        getFollowers,
+        getFollowings,
+        findFriend,
+        unfollowFriend,
+        followFriend
+
     };
 };
 

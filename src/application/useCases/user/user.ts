@@ -10,3 +10,34 @@ export const userById =async (id:string, repository: ReturnType<UserDbInterface>
     }
     return user;
 }
+
+export const followers = async (id: string, repository: ReturnType<UserDbInterface>) => {
+    const followers: any = await repository.getFollowers(id);
+    return followers;
+}
+
+export const followings = async (id: string, repository: ReturnType<UserDbInterface>) => {
+    const followings: any = await repository.getFollowings(id);
+    return followings;
+}
+
+export const addFollowers = async (id: any, friendId: any, repository: ReturnType<UserDbInterface>) => {
+
+    // find user already a friend or not
+    const isFriend: any = await repository.findFriend(id, friendId);
+
+    if(isFriend) {
+        // this friend is already a follower
+        const friend: any = await repository.unfollowFriend(id, friendId)
+        return {
+            status: 'unfollow',
+            friend
+        }
+    } else {
+        const friend: any = await repository.followFriend(id, friendId)
+        return {
+            status: 'follow',
+            friend
+        }
+    }
+}

@@ -9,6 +9,12 @@ const userRouter = () => {
 
     router.get('/:id', controllers.getUserById);
 
+    router.get('/followers/:id', controllers.getFollowersList);
+
+    router.get('/followings/:id', controllers.getFollowingsList);
+
+    router.patch('/', controllers.insertFollowers)
+
     return router;
 }
 
