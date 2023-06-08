@@ -11,7 +11,7 @@ const authRouter = () => {
         authServiceInterface,
         authServices,
         userDbRepository,
-        userRepositoryMongoDB  
+        userRepositoryMongoDB
     );
 
     router.post('/register', controllers.registerUser);
@@ -20,7 +20,7 @@ const authRouter = () => {
 
     router.post('/google_auth', controllers.googleAuth)
 
-    router.post
+    router.patch('/user/block/:id', controllers.blockUser)
 
     return router
 

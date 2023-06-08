@@ -36,6 +36,31 @@ export const postDbInterface: any = (repositories: ReturnType<postRepositoryType
         await repositories.likePost(id, userId)
     }
 
+    const insertComment = async(postId: string, userId: string, comment: string) => {
+        const insertResult = await repositories.insertComment(postId, userId, comment);
+        return insertResult
+    }
+
+    const pushComment = async(postId: string, comments: any) => {
+        const updateResult = await repositories.pushComment(postId, comments);
+        return updateResult;
+    }
+
+    const editPost = async(postId: string, body: any) => {
+        const editPost = await repositories.editPost(postId, body)
+        return editPost
+    }
+
+    const reportPost = async(userId: string, postId: string, reason: any) => {
+        const repostResponse = await repositories.reportPost(userId, postId, reason);
+        return repostResponse;
+    }
+
+    const getReportedUsers = async (postId: string) => {
+        const users = await repositories.getReportedUsers(postId);
+        return users;
+    }
+
     return {
         getAllPost,
         uploadPost,
@@ -43,7 +68,13 @@ export const postDbInterface: any = (repositories: ReturnType<postRepositoryType
         getPostById,
         deletePost,
         dislikePost,
-        likePost
+        likePost,
+        insertComment,
+        pushComment,
+        editPost,
+        reportPost,
+        getReportedUsers
+
     }
 }
 

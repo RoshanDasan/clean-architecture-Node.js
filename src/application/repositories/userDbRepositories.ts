@@ -13,6 +13,11 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         return await repository.addUser(user);
     };
 
+    const getAllUsers = async () => {
+        return await repository.getAllUsers()
+
+    }
+
     const getUserByEmail = async (email: string) => {
         return await repository.getUserByEmail(email);
     };
@@ -46,6 +51,19 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         return await repository.followFriend(id, friendId)
     }
 
+    const searchUser = async (prefix: string) => {
+        return await repository.searchUser(prefix);
+    }
+    const updateProfile = async (id: string, body: any) => {
+        return await repository.updateProfile(id, body)
+    }
+    const blockUser = async (id: string) => {
+        return await repository.blockUser(id);
+    }
+    const unBlockUser = async (id: string) => {
+        return await repository.unBlockUser(id);
+    }
+
 
 
     return {
@@ -57,7 +75,13 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         getFollowings,
         findFriend,
         unfollowFriend,
-        followFriend
+        followFriend,
+        getAllUsers,
+        searchUser,
+        updateProfile,
+        blockUser,
+        unBlockUser
+        
 
     };
 };

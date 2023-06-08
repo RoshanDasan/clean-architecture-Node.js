@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { UserDbInterface } from '../../application/repositories/userDbRepositories';
-import { userById, followers, followings, addFollowers } from '../../application/useCases/user/user';
+import { userById, followers, followings, addFollowers, getUserDetails, searchUserByPrefix, updateProfileInfo } from '../../application/useCases/user/user';
 import { userRepositoryMongoDB } from '../../framework/database/Mongodb/repositories/userRepositories';
 
 const userControllers = (
@@ -9,6 +9,16 @@ const userControllers = (
     userDbRepositoryService: userRepositoryMongoDB
 ) => {
     const  dbRepositoryUser = userDbRepository(userDbRepositoryService());
+
+
+    // get all users list
+    const getAllUsers = asyncHandler(async(req: Request, res: Response) => {
+        const users = await getUserDetails(dbRepositoryUser);
+        res.json({
+            status: 'Get users success',
+            users
+        })
+    })
 
     // get a user details by id
     const getUserById = asyncHandler(async(req:Request, res:Response) => {
@@ -52,11 +62,41 @@ const userControllers = (
         })
     })
 
+    // search user 
+    const searchUser = asyncHandler(async(req: Request, res: Response) => {
+        
+        const { prefix } = req.params
+        
+        const users: any = await searchUserByPrefix(prefix, dbRepositoryUser);
+        res.json({
+            status: 'searched success',
+            users
+        })
+    })
+
+    // update profile informations
+    const updateProfile = asyncHandler(async(req: Request, res: Response) => {
+        const { id } = req.params;
+        const { bio, gender } = req.body;
+        const image: any = req?.file?.filename;
+        console.log(req.body);
+        
+
+        const updateResult = await updateProfileInfo(id, {image, bio, gender }, dbRepositoryUser );
+        res.json({
+            status: 'Update success',
+            data: updateResult
+        })
+    })
+
     return {
         getUserById,
         getFollowersList,
         getFollowingsList,
-        insertFollowers
+        insertFollowers,
+        getAllUsers,
+        searchUser,
+        updateProfile
     };
 };
 

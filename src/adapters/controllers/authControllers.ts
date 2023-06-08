@@ -4,7 +4,7 @@ import { AuthServices } from '../../framework/services/authServices';
 import { AuthServiceInterface } from '../../application/services/authServiceInterface';
 import { UserDbInterface } from '../../application/repositories/userDbRepositories';
 import { userRepositoryMongoDB } from '../../framework/database/Mongodb/repositories/userRepositories';
-import { userRegister, userLogin, googleAuthLogin} from '../../application/useCases/auth/userAuth';
+import { userRegister, userLogin, googleAuthLogin, userBlock} from '../../application/useCases/auth/userAuth';
 
 // authentication controllers
 const authControllers = (
@@ -47,9 +47,12 @@ const authControllers = (
     });
 
     const googleAuth = asyncHandler(async(req: Request, res: Response) => {
-        const { name, userName, number,email } = req.body;
-        const userData: any = { name, userName, number, email }
+        console.log('-----------------------');
+        const { fullName, firstName, email } = req.body;
+        const userData: any = { name:fullName, userName:firstName, number: 7594837203, email }
+        console.log(userData);
 
+        
         const {user, token} = await googleAuthLogin(userData, dbUserRepository, authServices)
 
         res.json({
@@ -59,10 +62,19 @@ const authControllers = (
         })
     })
 
+    const blockUser = asyncHandler(async(req: Request, res: Response) => {
+        const { id } = req.params;
+        const blockResult = await userBlock(id, dbUserRepository);
+        res.json({
+            status: `${blockResult} success`
+        })
+    })
+
     return {
         registerUser,
         loginUser,
-        googleAuth
+        googleAuth,
+        blockUser
     };
 };
 

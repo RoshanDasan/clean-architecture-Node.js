@@ -2,6 +2,12 @@ import { HttpStatus } from '../../../types/httpstatuscodes';
 import AppError from '../../../utilities/appError';
 import { UserDbInterface } from '../../repositories/userDbRepositories';
 
+
+export const getUserDetails = async (repository: ReturnType<UserDbInterface>) => {
+    const users: any = await repository.getAllUsers()
+    return users;
+}
+
 export const userById =async (id:string, repository: ReturnType<UserDbInterface>) => {
     const user: any = await repository.getUserById(id)
 
@@ -40,4 +46,16 @@ export const addFollowers = async (id: any, friendId: any, repository: ReturnTyp
             friend
         }
     }
+}
+
+export const searchUserByPrefix = async (prefix: any, repository: ReturnType<UserDbInterface>) => {
+    if(!prefix) return HttpStatus.NOT_FOUND
+    const searchedUsers: any = await repository.searchUser(prefix)
+    return searchedUsers
+}
+
+export const updateProfileInfo = async (id: string, body: any,  repository: ReturnType<UserDbInterface>) => {
+    if(!body || !id) return HttpStatus.NOT_FOUND
+    const updateProfile: any = await repository.updateProfile(id, body);
+    return updateProfile
 }

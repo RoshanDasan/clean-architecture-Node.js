@@ -46,6 +46,10 @@ export const userLogin =async (
     }
     const checkPassword: any = await authService.comparePassword(password, user.password);
 
+    if(user.isBlock){
+        throw new AppError("User was blocked", HttpStatus.UNAUTHORIZED)
+    }
+
     if(!checkPassword){
         throw new AppError("Password you entered was incorrect", HttpStatus.UNAUTHORIZED);
     }
@@ -59,18 +63,22 @@ export const userLogin =async (
 
 export const googleAuthLogin = async(
     user:{
-        name: string;
-        userName: string;
-        email: string;
-        number?: number;
+        name: any;
+        userName: any;
+        email: any;
+        number?: any;
         password?: any;
     },
+
     userRepository: ReturnType<UserDbInterface>,
     authService: ReturnType<AuthServiceInterface>
 ) => {
     const isEmailExist: any = await userRepository.getUserByEmail(user.email);
 
     if(isEmailExist) {
+        if(isEmailExist.isBlock){
+            throw new AppError("User was blocked", HttpStatus.UNAUTHORIZED)
+        }
         const token: any = await authService.generateToken(isEmailExist._id.toString())
         return {
             user: isEmailExist,
@@ -83,5 +91,16 @@ export const googleAuthLogin = async(
             user: userDetails,
             token
         }
+    }
+}
+
+export const userBlock = async (id: any, userRepository: ReturnType<UserDbInterface>) => {
+    const { isBlock } : any = await userRepository.getUserById(id)
+    if(!isBlock){
+       const blockResponse: any = await userRepository.blockUser(id);
+       return blockResponse;
+    }else {
+        const unBlockResponse: any = await userRepository.unBlockUser(id);
+        return unBlockResponse;
     }
 }

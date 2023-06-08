@@ -3,6 +3,7 @@ import authRouter from './auth';
 import userRouter from './user';
 import postRouter from './post';
 import adminauthRouter from './adminAuth';
+import chatRouter from './chat';
 import userAuthMiddleware from '../middlewares/authMiddleware'
 
 const routes = (app: Application) => {
@@ -10,6 +11,7 @@ const routes = (app: Application) => {
     app.use('/api/admin',adminauthRouter())
     app.use('/api/user', userRouter());
     app.use('/api/post', postRouter())
+    app.use('/api/chat', chatRouter())
 }
 
 export default routes;
