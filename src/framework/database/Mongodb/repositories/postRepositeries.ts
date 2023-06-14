@@ -1,6 +1,7 @@
 import Post from "../models/postModel";
 import User from "../models/userModel";
 import { ObjectId } from 'mongodb'
+import cloudinary from 'cloudinary'
 
 // post database operations
 
@@ -14,6 +15,7 @@ export const postRepositoryMongoDb = () => {
         userId: string;
         description: string;
         image: string;
+        video: string;
         userName: string;
     }) => {
         const newpost = new Post(post);

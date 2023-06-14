@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { UserDbInterface } from '../../application/repositories/userDbRepositories';
-import { userById, followers, followings, addFollowers, getUserDetails, searchUserByPrefix, updateProfileInfo } from '../../application/useCases/user/user';
+import { userById, followers, followings, addFollowers, getUserDetails, searchUserByPrefix, updateProfileInfo, userBlock } from '../../application/useCases/user/user';
 import { userRepositoryMongoDB } from '../../framework/database/Mongodb/repositories/userRepositories';
 
 const userControllers = (
@@ -13,7 +13,8 @@ const userControllers = (
 
     // get all users list
     const getAllUsers = asyncHandler(async(req: Request, res: Response) => {
-        const users = await getUserDetails(dbRepositoryUser);
+        const { id } = req.params;
+        const users = await getUserDetails(id, dbRepositoryUser);
         res.json({
             status: 'Get users success',
             users
@@ -77,17 +78,26 @@ const userControllers = (
     // update profile informations
     const updateProfile = asyncHandler(async(req: Request, res: Response) => {
         const { id } = req.params;
-        const { bio, gender } = req.body;
+        const { bio, gender, city, date, file } = req.body;
         const image: any = req?.file?.filename;
         console.log(req.body);
         
 
-        const updateResult = await updateProfileInfo(id, {image, bio, gender }, dbRepositoryUser );
+        const updateResult = await updateProfileInfo(id, {file, bio, gender, city, date }, dbRepositoryUser );
         res.json({
             status: 'Update success',
             data: updateResult
         })
     })
+
+    // block user by user
+    const blockUser = asyncHandler(async(req: Request, res: Response) => {
+        const { userId, blockId } = req.params;
+        const blockResult = await userBlock(userId, blockId, dbRepositoryUser);
+        res.json({
+            status: blockResult
+        });
+    }) 
 
     return {
         getUserById,
@@ -96,7 +106,8 @@ const userControllers = (
         insertFollowers,
         getAllUsers,
         searchUser,
-        updateProfile
+        updateProfile,
+        blockUser
     };
 };
 

@@ -32,10 +32,17 @@ const userSchema = new Schema(
     gender: {
       type: String
     },
+    city:{
+      type: String
+    },
+    DOB:{
+      type: String
+    },
     isBlock: {
       type: Boolean,
       default: false,
     },
+    blockedUsers:[],
     followers: [],
     following: []
 
