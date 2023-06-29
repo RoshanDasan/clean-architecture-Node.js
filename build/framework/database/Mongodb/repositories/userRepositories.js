@@ -11,11 +11,12 @@ const userRepositoryMongoDB = () => {
         return await newUser.save();
     };
     const getAllUsers = async () => {
-        const users = await userModel_1.default.find({ _id: { $ne: '646fa8515333e77cdec159c2' }, followers: { $nin: ['6471800e2ed680381cbae276', '6477705ef858f715f868093a'] } });
+        const users = await userModel_1.default.find();
+        // const users: any = await User.find({ _id: { $ne: '646fa8515333e77cdec159c2' }, followers: { $nin: ['6471800e2ed680381cbae276', '6477705ef858f715f868093a'] } });
         return users;
     };
     const getUserByEmail = async (email) => {
-        const user = await userModel_1.default.findOne({ email });
+        const user = await userModel_1.default.findOne({ email }).select('-password');
         return user;
     };
     const getUserByUserName = async (userName) => {
@@ -24,7 +25,7 @@ const userRepositoryMongoDB = () => {
     };
     const getUserById = async (id) => {
         try {
-            const user = await userModel_1.default.findOne({ _id: id });
+            const user = await userModel_1.default.findOne({ _id: id }).select('-password');
             return user;
         }
         catch (error) {
@@ -50,6 +51,24 @@ const userRepositoryMongoDB = () => {
         const isUserExist = await user.followers.find((user) => user === friendId);
         return isUserExist;
     };
+    const sendRequest = async (id, userName, friendName, dp, friendDp, friendId) => {
+        await userModel_1.default.updateOne({ _id: friendId }, {
+            $push: { requests: { id, userName, dp } }
+        });
+        await userModel_1.default.updateOne({ _id: id }, {
+            $push: { requested: { id: friendId, userName: friendName, dp: friendDp } }
+        });
+        return;
+    };
+    const cancelRequest = async (id, friendId) => {
+        await userModel_1.default.updateOne({ _id: friendId }, {
+            $pull: { requests: { id } }
+        });
+        await userModel_1.default.updateOne({ _id: id }, {
+            $pull: { requested: { id: friendId } }
+        });
+        return;
+    };
     const unfollowFriend = async (_id, friendId) => {
         // remove friend from user follower list
         await userModel_1.default.findByIdAndUpdate({ _id }, { $pull: { followers: friendId } });
@@ -64,20 +83,32 @@ const userRepositoryMongoDB = () => {
         const friendDetails = await userModel_1.default.findOne({ _id: friendId });
         return friendDetails;
     };
-    const searchUser = async (prefix) => {
-        const regex = new RegExp(`^${prefix}`, 'i');
-        const users = await userModel_1.default.find({ userName: regex });
-        return users;
+    const searchUser = async (prefix, type) => {
+        if (type === 'userName') {
+            const regex = new RegExp(`^${prefix}`, 'i');
+            const users = await userModel_1.default.find({ userName: regex });
+            return users;
+        }
+        else if (type === 'gender') {
+            const regex = new RegExp(`^${prefix}`, 'i');
+            const users = await userModel_1.default.find({ gender: regex });
+            return users;
+        }
+        else {
+            const regex = new RegExp(`^${prefix}`, 'i');
+            const users = await userModel_1.default.find({ city: regex });
+            return users;
+        }
     };
     const updateProfile = async (_id, data) => {
-        const { image, bio, gender, city, date } = data;
+        const { userName, file, bio, gender, city } = data;
         const updateResult = await userModel_1.default.findByIdAndUpdate(_id, {
             $set: {
-                dp: image,
+                userName,
+                dp: file,
                 bio,
                 gender,
                 city,
-                DOB: date
             }
         }, { new: true });
         return updateResult;
@@ -94,6 +125,24 @@ const userRepositoryMongoDB = () => {
         });
         return 'UnBlocked';
     };
+    const blockUserByUser = async (blockingUser, blockedUser) => {
+        await userModel_1.default.findByIdAndUpdate({ _id: blockedUser }, {
+            $push: { blockedUsers: blockingUser }
+        });
+        await userModel_1.default.findByIdAndUpdate({ _id: blockingUser }, {
+            $push: { blockingUsers: blockedUser }
+        });
+        return 'Blocked';
+    };
+    const unBlockUserByUser = async (blockingUser, blockedUser) => {
+        await userModel_1.default.findByIdAndUpdate({ _id: blockedUser }, {
+            $pull: { blockedUsers: blockingUser }
+        });
+        await userModel_1.default.findByIdAndUpdate({ _id: blockingUser }, {
+            $pull: { blockingUsers: blockedUser }
+        });
+        return 'Unblocked';
+    };
     return {
         addUser,
         getUserByEmail,
@@ -102,13 +151,17 @@ const userRepositoryMongoDB = () => {
         getFollowers,
         getFollowings,
         findFriend,
+        sendRequest,
+        cancelRequest,
         unfollowFriend,
         followFriend,
         getAllUsers,
         searchUser,
         updateProfile,
         blockUser,
-        unBlockUser
+        unBlockUser,
+        blockUserByUser,
+        unBlockUserByUser
     };
 };
 exports.userRepositoryMongoDB = userRepositoryMongoDB;

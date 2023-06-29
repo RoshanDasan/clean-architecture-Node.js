@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { UserDbInterface } from '../../application/repositories/userDbRepositories';
-import { userById, followers, followings, addFollowers, getUserDetails, searchUserByPrefix, updateProfileInfo, userBlock } from '../../application/useCases/user/user';
+import { userById, followers, followings, unfollow, getUserDetails, searchUserByPrefix, updateProfileInfo, userBlock, requestFriend, requestFriendResponse } from '../../application/useCases/user/user';
 import { userRepositoryMongoDB } from '../../framework/database/Mongodb/repositories/userRepositories';
 
 const userControllers = (
     userDbRepository: UserDbInterface,
     userDbRepositoryService: userRepositoryMongoDB
 ) => {
-    const  dbRepositoryUser = userDbRepository(userDbRepositoryService());
+    const dbRepositoryUser = userDbRepository(userDbRepositoryService());
 
 
     // get all users list
-    const getAllUsers = asyncHandler(async(req: Request, res: Response) => {
+    const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
         const users = await getUserDetails(id, dbRepositoryUser);
         res.json({
@@ -22,7 +22,7 @@ const userControllers = (
     })
 
     // get a user details by id
-    const getUserById = asyncHandler(async(req:Request, res:Response) => {
+    const getUserById = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
 
         const user = await userById(id, dbRepositoryUser)
@@ -30,10 +30,10 @@ const userControllers = (
             status: "success",
             user
         });
-    }); 
+    });
 
     // get followers list of the user
-    const getFollowersList = asyncHandler(async(req: Request, res: Response) => {
+    const getFollowersList = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
         const followersList: any = await followers(id, dbRepositoryUser);
         res.json({
@@ -44,7 +44,7 @@ const userControllers = (
     })
 
     // get following list of the user
-    const getFollowingsList = asyncHandler(async(req: Request, res: Response) => {
+    const getFollowingsList = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
         const followingList: any = await followings(id, dbRepositoryUser);
         res.json({
@@ -53,22 +53,45 @@ const userControllers = (
         })
     })
 
+
+    // send friend request to user
+    const sendRequest = asyncHandler(async (req: Request, res: Response) => {
+        const { id, friendId } = req.params;
+        const response = await requestFriend(id, friendId, dbRepositoryUser);
+        res.json({
+            status: response
+        })
+    })
+
+    // accept or reject request
+    const responseFriendRequest = asyncHandler(async (req: Request, res: Response) => {
+        const { id, friendId } = req.params;
+        const { response } = req.body;
+        const status = await requestFriendResponse(id, friendId, response, dbRepositoryUser)
+        res.json({
+            status
+        })
+    })
+
     // insert followers to user
-    const insertFollowers = asyncHandler(async(req: Request, res: Response) => {
+    const unfollowUser = asyncHandler(async (req: Request, res: Response) => {
         const { id, friendId } = req.query;
-        const {status, friend}: any = await addFollowers(id, friendId, dbRepositoryUser);
+        const { status, friend }: any = await unfollow(id, friendId, dbRepositoryUser);
         res.json({
             status,
-            friend 
+            friend
         })
     })
 
     // search user 
-    const searchUser = asyncHandler(async(req: Request, res: Response) => {
-        
-        const { prefix } = req.params
-        
-        const users: any = await searchUserByPrefix(prefix, dbRepositoryUser);
+    const searchUser = asyncHandler(async (req: Request, res: Response) => {
+
+        const { prefix } = req.params;
+        const { type } = req.query;
+        console.log(type, 'par');
+
+
+        const users: any = await searchUserByPrefix(prefix, type, dbRepositoryUser);
         res.json({
             status: 'searched success',
             users
@@ -76,14 +99,11 @@ const userControllers = (
     })
 
     // update profile informations
-    const updateProfile = asyncHandler(async(req: Request, res: Response) => {
+    const updateProfile = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { bio, gender, city, date, file } = req.body;
-        const image: any = req?.file?.filename;
-        console.log(req.body);
-        
+        const { userName, bio, gender, city, file } = req.body;
 
-        const updateResult = await updateProfileInfo(id, {file, bio, gender, city, date }, dbRepositoryUser );
+        const updateResult = await updateProfileInfo(id, { userName, file, bio, gender, city }, dbRepositoryUser);
         res.json({
             status: 'Update success',
             data: updateResult
@@ -91,19 +111,21 @@ const userControllers = (
     })
 
     // block user by user
-    const blockUser = asyncHandler(async(req: Request, res: Response) => {
+    const blockUser = asyncHandler(async (req: Request, res: Response) => {
         const { userId, blockId } = req.params;
         const blockResult = await userBlock(userId, blockId, dbRepositoryUser);
         res.json({
             status: blockResult
         });
-    }) 
+    })
 
     return {
         getUserById,
+        sendRequest,
+        responseFriendRequest,
         getFollowersList,
         getFollowingsList,
-        insertFollowers,
+        unfollowUser,
         getAllUsers,
         searchUser,
         updateProfile,

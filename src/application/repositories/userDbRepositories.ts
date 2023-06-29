@@ -2,14 +2,14 @@ import { userRepositoryMongoDB } from "../../framework/database/Mongodb/reposito
 
 
 export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) => {
-    const addUser =async (user:{
+    const addUser = async (user: {
         name: string;
         userName: string;
         email: string;
         number?: number;
         password?: string;
     }) => {
-        
+
         return await repository.addUser(user);
     };
 
@@ -21,10 +21,10 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
     const getUserByEmail = async (email: string) => {
         return await repository.getUserByEmail(email);
     };
-    
+
     const getUserByUserName = async (userName: string) => {
-        
-       return await repository.getUserByUserName(userName);
+
+        return await repository.getUserByUserName(userName);
     };
 
     const getUserById = async (id: string) => {
@@ -43,6 +43,14 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         return await repository.findFriend(id, friendId);
     }
 
+    const sendRequest = async (id: string, userName: string, friendName: string, dp: any, friendDp: string,  friendId: string) => {
+        return await repository.sendRequest(id, userName, friendName,dp, friendDp,  friendId);
+    }
+
+    const cancelRequest = async (id: string, friendId: string) => {
+        return await repository.cancelRequest(id, friendId);
+    }
+
     const unfollowFriend = async (id: string, friendId: string) => {
         return await repository.unfollowFriend(id, friendId)
     }
@@ -51,8 +59,8 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         return await repository.followFriend(id, friendId)
     }
 
-    const searchUser = async (prefix: string) => {
-        return await repository.searchUser(prefix);
+    const searchUser = async (prefix: string, type: string) => {
+        return await repository.searchUser(prefix, type);
     }
     const updateProfile = async (id: string, body: any) => {
         return await repository.updateProfile(id, body)
@@ -81,6 +89,8 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         getUserById,
         getFollowers,
         getFollowings,
+        sendRequest,
+        cancelRequest,
         findFriend,
         unfollowFriend,
         followFriend,
@@ -91,7 +101,7 @@ export const userDbRepository = (repository: ReturnType<userRepositoryMongoDB>) 
         unBlockUser,
         blockUserByUser,
         unBlockUserByUser
-        
+
 
     };
 };

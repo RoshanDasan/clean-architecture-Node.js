@@ -9,7 +9,8 @@ const userControllers = (userDbRepository, userDbRepositoryService) => {
     const dbRepositoryUser = userDbRepository(userDbRepositoryService());
     // get all users list
     const getAllUsers = (0, express_async_handler_1.default)(async (req, res) => {
-        const users = await (0, user_1.getUserDetails)(dbRepositoryUser);
+        const { id } = req.params;
+        const users = await (0, user_1.getUserDetails)(id, dbRepositoryUser);
         res.json({
             status: 'Get users success',
             users
@@ -42,10 +43,27 @@ const userControllers = (userDbRepository, userDbRepositoryService) => {
             followings: followingList
         });
     });
+    // send friend request to user
+    const sendRequest = (0, express_async_handler_1.default)(async (req, res) => {
+        const { id, friendId } = req.params;
+        const response = await (0, user_1.requestFriend)(id, friendId, dbRepositoryUser);
+        res.json({
+            status: response
+        });
+    });
+    // accept or reject request
+    const responseFriendRequest = (0, express_async_handler_1.default)(async (req, res) => {
+        const { id, friendId } = req.params;
+        const { response } = req.body;
+        const status = await (0, user_1.requestFriendResponse)(id, friendId, response, dbRepositoryUser);
+        res.json({
+            status
+        });
+    });
     // insert followers to user
-    const insertFollowers = (0, express_async_handler_1.default)(async (req, res) => {
+    const unfollowUser = (0, express_async_handler_1.default)(async (req, res) => {
         const { id, friendId } = req.query;
-        const { status, friend } = await (0, user_1.addFollowers)(id, friendId, dbRepositoryUser);
+        const { status, friend } = await (0, user_1.unfollow)(id, friendId, dbRepositoryUser);
         res.json({
             status,
             friend
@@ -54,7 +72,9 @@ const userControllers = (userDbRepository, userDbRepositoryService) => {
     // search user 
     const searchUser = (0, express_async_handler_1.default)(async (req, res) => {
         const { prefix } = req.params;
-        const users = await (0, user_1.searchUserByPrefix)(prefix, dbRepositoryUser);
+        const { type } = req.query;
+        console.log(type, 'par');
+        const users = await (0, user_1.searchUserByPrefix)(prefix, type, dbRepositoryUser);
         res.json({
             status: 'searched success',
             users
@@ -63,23 +83,32 @@ const userControllers = (userDbRepository, userDbRepositoryService) => {
     // update profile informations
     const updateProfile = (0, express_async_handler_1.default)(async (req, res) => {
         const { id } = req.params;
-        const { bio, gender, city, date } = req.body;
-        const image = req?.file?.filename;
-        console.log(req.body);
-        const updateResult = await (0, user_1.updateProfileInfo)(id, { image, bio, gender, city, date }, dbRepositoryUser);
+        const { userName, bio, gender, city, file } = req.body;
+        const updateResult = await (0, user_1.updateProfileInfo)(id, { userName, file, bio, gender, city }, dbRepositoryUser);
         res.json({
             status: 'Update success',
             data: updateResult
         });
     });
+    // block user by user
+    const blockUser = (0, express_async_handler_1.default)(async (req, res) => {
+        const { userId, blockId } = req.params;
+        const blockResult = await (0, user_1.userBlock)(userId, blockId, dbRepositoryUser);
+        res.json({
+            status: blockResult
+        });
+    });
     return {
         getUserById,
+        sendRequest,
+        responseFriendRequest,
         getFollowersList,
         getFollowingsList,
-        insertFollowers,
+        unfollowUser,
         getAllUsers,
         searchUser,
-        updateProfile
+        updateProfile,
+        blockUser
     };
 };
 exports.default = userControllers;

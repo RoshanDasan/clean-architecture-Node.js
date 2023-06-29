@@ -15,11 +15,8 @@ const postControllers = (postDbInterface, postRepositoryType) => {
         });
     });
     const uploadPost = (0, express_async_handler_1.default)(async (req, res) => {
-        const { userId, description, userName } = req.body;
-        const image = req?.file?.filename;
-        console.log(image);
-        console.log(req.body);
-        const body = { userId, description, userName, image };
+        const { userId, description, userName, image, video } = req.body;
+        const body = { userId, description, userName, image, video };
         const newPost = await (0, post_1.postCreate)(body, dbRepositoriesPost);
         res.json({
             status: 'upload-success',
@@ -53,26 +50,29 @@ const postControllers = (postDbInterface, postRepositoryType) => {
     const postLikeUpdate = (0, express_async_handler_1.default)(async (req, res) => {
         const { id, userId } = req.query;
         await (0, post_1.updateLike)(id, userId, dbRepositoriesPost);
-        console.log('liked success');
         res.json({
             status: 'like update success'
         });
     });
     const commentPost = (0, express_async_handler_1.default)(async (req, res) => {
         const { postId, userId } = req.params;
-        console.log(req.body);
         const { comment } = req.body;
-        console.log(comment);
         const updateResult = await (0, post_1.insertComment)(postId, userId, comment, dbRepositoriesPost);
-        console.log(updateResult);
         res.json({
             status: 'comment success',
             comment: updateResult
         });
     });
+    const commentReply = (0, express_async_handler_1.default)(async (req, res) => {
+        const { userId, postId } = req.params;
+        const { comment, reply } = req.body;
+        const updateResult = await (0, post_1.replyComment)(postId, userId, comment, reply, dbRepositoriesPost);
+        res.json({
+            status: updateResult
+        });
+    });
     const commentDelete = (0, express_async_handler_1.default)(async (req, res) => {
         const { postId, index } = req.params;
-        console.log(postId, index);
         const deleteResult = await (0, post_1.deleteComment)(postId, index, dbRepositoriesPost);
         res.json({
             status: 'comment deleted',
@@ -113,6 +113,7 @@ const postControllers = (postDbInterface, postRepositoryType) => {
         deletePost,
         postLikeUpdate,
         commentPost,
+        commentReply,
         commentDelete,
         editPost,
         reportPost,

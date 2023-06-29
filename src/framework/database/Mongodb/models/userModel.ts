@@ -35,16 +35,16 @@ const userSchema = new Schema(
     city:{
       type: String
     },
-    DOB:{
-      type: String
-    },
     isBlock: {
       type: Boolean,
       default: false,
     },
     blockedUsers:[],
+    blockingUsers:[],
     followers: [],
-    following: []
+    following: [],
+    requests:[],
+    requested:[]
 
   },
   { timestamps: true }

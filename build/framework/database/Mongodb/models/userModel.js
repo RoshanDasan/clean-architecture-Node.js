@@ -35,15 +35,16 @@ const userSchema = new mongoose_1.Schema({
     city: {
         type: String
     },
-    DOB: {
-        type: String
-    },
     isBlock: {
         type: Boolean,
         default: false,
     },
+    blockedUsers: [],
+    blockingUsers: [],
     followers: [],
-    following: []
+    following: [],
+    requests: [],
+    requested: []
 }, { timestamps: true });
 const User = (0, mongoose_1.model)("User", userSchema);
 exports.default = User;

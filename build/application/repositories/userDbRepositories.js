@@ -26,14 +26,20 @@ const userDbRepository = (repository) => {
     const findFriend = async (id, friendId) => {
         return await repository.findFriend(id, friendId);
     };
+    const sendRequest = async (id, userName, friendName, dp, friendDp, friendId) => {
+        return await repository.sendRequest(id, userName, friendName, dp, friendDp, friendId);
+    };
+    const cancelRequest = async (id, friendId) => {
+        return await repository.cancelRequest(id, friendId);
+    };
     const unfollowFriend = async (id, friendId) => {
         return await repository.unfollowFriend(id, friendId);
     };
     const followFriend = async (id, friendId) => {
         return await repository.followFriend(id, friendId);
     };
-    const searchUser = async (prefix) => {
-        return await repository.searchUser(prefix);
+    const searchUser = async (prefix, type) => {
+        return await repository.searchUser(prefix, type);
     };
     const updateProfile = async (id, body) => {
         return await repository.updateProfile(id, body);
@@ -44,6 +50,12 @@ const userDbRepository = (repository) => {
     const unBlockUser = async (id) => {
         return await repository.unBlockUser(id);
     };
+    const blockUserByUser = async (userId, blockId) => {
+        return await repository.blockUserByUser(userId, blockId);
+    };
+    const unBlockUserByUser = async (userId, blockId) => {
+        return await repository.unBlockUserByUser(userId, blockId);
+    };
     return {
         addUser,
         getUserByEmail,
@@ -51,6 +63,8 @@ const userDbRepository = (repository) => {
         getUserById,
         getFollowers,
         getFollowings,
+        sendRequest,
+        cancelRequest,
         findFriend,
         unfollowFriend,
         followFriend,
@@ -58,7 +72,9 @@ const userDbRepository = (repository) => {
         searchUser,
         updateProfile,
         blockUser,
-        unBlockUser
+        unBlockUser,
+        blockUserByUser,
+        unBlockUserByUser
     };
 };
 exports.userDbRepository = userDbRepository;
